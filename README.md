@@ -2,8 +2,8 @@
   <br />
   <a href="https://nodejs.org">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./public/static/logos/nodejsDark.svg">
-      <img src="./public/static/logos/nodejsLight.svg" width="200px">
+      <source media="(prefers-color-scheme: dark)" srcset="https://nodejs.org/static/logos/nodejsLight.svg">
+      <img src="https://nodejs.org/static/logos/nodejsDark.svg" width="200px">
     </picture>
   </a>
 </p>
@@ -40,7 +40,7 @@
 
 ```bash
 npm ci
-npx turbo dev
+npm run dev
 
 # listening at localhost:3000
 ```
@@ -101,6 +101,8 @@ These are maintained in different repositories and we urge users to open **issue
 [Dependency Pinning][]
 
 [Translation Guidelines][]
+
+[Status Page](https://status.nodejs.org/) of the Node.js web infrastructure.
 
 ## Thanks
 
