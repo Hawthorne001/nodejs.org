@@ -13,6 +13,9 @@
   - [Best practices when creating a Component](#best-practices-when-creating-a-component)
     - [How a new Component should look like when freshly created](#how-a-new-component-should-look-like-when-freshly-created)
   - [Best practices for Component development in general](#best-practices-for-component-development-in-general)
+- [The new Downloads page](#the-new-downloads-page)
+  - [Adding a Download Installation Method](#adding-a-download-installation-method)
+  - [Adding a Download Package Manager](#adding-a-download-package-manager)
 - [Unit Tests and Storybooks](#unit-tests-and-storybooks)
   - [General Guidelines for Unit Tests](#general-guidelines-for-unit-tests)
   - [General Guidelines for Storybooks](#general-guidelines-for-storybooks)
@@ -90,47 +93,50 @@ The Website also uses several other Open Source libraries (not limited to) liste
 - We use [Rehype](https://github.com/rehypejs/rehype) and [Remark](https://github.com/remarkjs/remark) to extend MDX functionality
 - We use [Storybook](https://storybook.js.org/) for Manual Testing and Visual Regression Tests of our React Components
   - Storybook also provides a sandboxed environment, which is very useful whilst for crafting React Components
-- We use [Sentry](https://sentry.io/about) for reporting Exceptions and monitoring the performance and reliability of the application
 
 ## Code Editing
 
 ### Structure of this Repository
 
-- React Components are defined on `/components`
-- React Templates are defined on `/layouts`
-- Global Stylesheets are declared on `/styles`
+⚠️ The repository is actively under migration to a multi-package workspace.
+Locations are subject to change. (If you are someone updating these paths,
+please document those changes here.)
+
+- React Components are defined on `apps/site/components`
+- React Templates are defined on `apps/site/layouts`
+- Global Stylesheets are declared on `apps/site/styles`
   - Styles are done with [PostCSS][]
-- Public files are stored on `/public`
-  - Static Images, JavaScript files, and others are stored within `/public/static`
-- Internationalisation is done on `/i18n`
-  - React Localisation Data is stored within `/i18n/locales`
+- Public files are stored on `apps/site/public`
+  - Static Images, JavaScript files, and others are stored within `apps/site/public/static`
+- Internationalisation is done on `apps/site/i18n`
+  - React Localisation Data is stored within `apps/site/i18n/locales`
   - We use the [ICU Message Syntax](https://formatjs.io/docs/core-concepts/icu-syntax/) for Translations
-  - Configuration for Locales is done within `/i18n/config.json`
-- Website Content is defined within `/pages`
-  - Initial development usually happens in English: `/pages/en`
-  - Localized versions of `/pages/en` are done within `/pages/{localeCode}`
+  - Configuration for Locales is done within `apps/site/i18n/config.json`
+- Website Content is defined within `apps/site/pages`
+  - Initial development usually happens in English: `apps/site/pages/en`
+  - Localized versions of `/pages/en` are done within `apps/site/pages/{localeCode}`
   - All content is in Markdown and is per locale.
   - The top of each Markdown file is a YAML (Frontmatter) block for page-specific localization information passed to various templates.
-  - The bulk of the Markdown content for each page is referenced as `{children}` on their respective JSX Layout (`layouts/`)
-- Multi-Purpose React Hooks are defined on `/hooks`
-- Multi-Purpose TypeScript definitions are defined on `/types`
-- React Context Providers are defined on `/providers`
-- Build-time Data Fetching Scripts are defined on `/next-data`
+  - The bulk of the Markdown content for each page is referenced as `{children}` on their respective JSX Layout (`apps/site/layouts/`)
+- Multi-Purpose React Hooks are defined on `apps/site/hooks`
+- Multi-Purpose TypeScript definitions are defined on `apps/site/types`
+- React Context Providers are defined on `apps/site/providers`
+- Build-time Data Fetching Scripts are defined on `apps/site/next-data`
   - Used for Node.js Release data fetching
   - Generation of build-time indexes such as blog data
-- Multi-Purpose Scripts are stored within `/scripts`
+- Multi-Purpose Scripts are stored within `apps/site/scripts`
   - Such as Node.js Release Blog Post generation
-- Storybook Configuration is done within `/.storybook`
+- Storybook Configuration is done within `apps/site/.storybook`
   - We use an almost out-of-the-box Storybook Experience with a few extra customisations
 
 ### Adding new Pages
 
 1. Create new page content including the layout, title and copy.
-2. Update the relevant `/layout` to add a link to the new page.
+2. Update the relevant `apps/site/layout` to add a link to the new page.
 
 #### Create the page content
 
-Create a new markdown file in `/pages/en`.
+Create a new markdown file in `apps/site/pages/en`.
 
 At the top of the markdown file, within the Markdown Frontmatter, set a page the title and layout.
 
@@ -192,7 +198,7 @@ Finally, if you're unfamiliar with how to use Tailwind or how to use Tailwind wi
   - We require that you define one Tailwind Token per line, just as shown on the example above, since this improves readability
 - Only write CSS within CSS Modules, avoid writing CSS within JavaScript files
 - We recommend creating mixins for reusable animations, effects and more
-  - You can create Mixins within the `styles/mixins` folder
+  - You can create Mixins within the `apps/site/styles/mixins` folder
 
 > \[!NOTE]\
 > Tailwind is already configured for this repository. You don't need to import any Tailwind module within your CSS module.\
@@ -205,11 +211,11 @@ Finally, if you're unfamiliar with how to use Tailwind or how to use Tailwind wi
 
 ### Best practices when creating a Component
 
-- All React Components should be placed within the `components` folder.
+- All React Components should be placed within the `apps/site/components` folder.
 - Each Component should be placed, whenever possible, within a sub-folder, which we call the "Domain" of the Component
   - The domain represents where these Components belong to or where they will be used.
   - For example, Components used within Article Pages or that are part of the structure of an Article or the Article Layouts,
-    should be placed within `components/Article`
+    should be placed within `apps/site/components/Article`
 - Each component should have its folder with the name of the Component
 - The structure of each component folder follows the following template:
   ```text
@@ -256,6 +262,117 @@ export default MyComponent;
   Use utilities or Hooks when you need a Reactive state
 - Avoid making your Component too big. Deconstruct it into smaller Components/Hooks whenever possible
 
+## The new Downloads page
+
+### Adding a Download Installation Method
+
+To add a new download installation method, follow these steps:
+
+1. **Update `INSTALL_METHODS` in `apps/site/util/downloadUtils.tsx`:**
+
+   - Add a new entry to the `INSTALL_METHODS` array.
+   - Each entry should have the following properties:
+     - `iconImage`: The React component of the icon image for the installation method. This should be an SVG component stored within `apps/site/components/Icons/InstallationMethod` and must follow the other icon component references (being a `FC` supporting `SVGSVGElement` props).
+       - Don't forget to add it on the `index.tsx` file from the `InstallationMethod` folder.
+     - `recommended`: A boolean indicating if this method is recommended. This property is available only for official installation methods.
+     - `url`: The URL for the installation method.
+     - `value`: The key of the installation method, which must be unique.
+
+   Example:
+
+   ```javascript
+   // filepath: /nodejs.org/apps/site/util/downloadUtils.tsx
+   // See full reference of INSTALL_METHODS within `downloadUtils.tsx`
+   export const INSTALL_METHODS = [
+     // ...existing methods...
+     {
+       iconImage: <InstallMethodIcons.YourIconImage width={16} height={16} />,
+       url: 'https://example.com/install',
+       value: 'exampleMethod',
+     },
+   ];
+   ```
+
+2. **Add translation key in `packages/i18n/locales/en.json`:**
+
+   - Add an entry under `layouts.download.codeBox.platformInfo` for the `info` property of the new installation method.
+
+   Example:
+
+   ```json
+   // filepath: /nodejs.org/packages/i18n/locales/en.json
+   {
+     "layouts": {
+       "download": {
+         "codeBox": {
+           "platformInfo": {
+             "exampleMethod": "Example installation method description."
+           }
+         }
+       }
+     }
+   }
+   ```
+
+3. **Update `InstallationMethodLabel` and `InstallationMethod` in `@/types/release.ts`:**
+
+   - Add the new method to the `InstallationMethodLabel` and `InstallationMethod` types.
+
+   Example:
+
+   ```typescript
+   // filepath: /nodejs.org/apps/site/types/release.ts
+   export type InstallationMethod = 'exampleMethod' | 'anotherMethod' | ...;
+
+   export const InstallationMethodLabel: Record<InstallationMethod, string> = {
+     exampleMethod: 'Example Method',
+     anotherMethod: 'Another Method',
+     // ...existing methods...
+   };
+   ```
+
+4. **Add a snippet in `apps/site/snippets/en/download`:**
+
+   - Create a new file with the same key as the `value` property (e.g., `exampleMethod.bash`).
+   - Add the installation instructions in this file.
+   - The snippet file can use JavaScript template syntax and has access to a `props` variable of type `ReleaseContextType`.
+
+   Example:
+
+   ```bash
+   // filepath: /nodejs.org/apps/site/snippets/en/download/exampleMethod.bash
+   echo "Installing Node.js version ${props.version} using Example Method"
+   ```
+
+5. **Configure `compatibility` within the `INSTALL_METHODS` object in `downloadUtils.ts`:**
+
+- Use the `compatibility` property to enable/list the installation method for specific OSs, Node.js version ranges, or architectures/platforms.
+
+Example:
+
+```javascript
+// filepath: /nodejs.org/apps/site/util/downloadUtils.tsx
+// See full reference of compatibility property within `downloadUtils.tsx`
+export const INSTALL_METHODS = [
+  {
+    iconImage: 'path/to/icon.svg',
+    url: 'https://example.com/install',
+    value: 'exampleMethod',
+    compatibility: {
+      os: ['LINUX', 'MAC'],
+      semver: ['>=14.0.0'],
+      platform: ['x64', 'arm64'],
+    },
+  },
+];
+```
+
+By following these steps, you can successfully add a new download installation method to the Node.js website.
+
+### Adding a Download Package Manager
+
+You can add a PACKAGE_MANAGER the same way as adding an INSTALLATION_METHOD (from the section above, "Adding a Download Installation Method") but it should be added to the PACKAGE_MANAGERS object in `apps/site/util/downloadUtils.tsx`.
+
 ## Unit Tests and Storybooks
 
 Each new feature or bug fix should be accompanied by a unit test (when deemed valuable).
@@ -295,7 +412,7 @@ import NameOfComponent from '@components/PathTo/YourComponent';
 type Story = StoryObj<typeof NameOfComponent>;
 type Meta = MetaObj<typeof NameOfComponent>;
 
-// If the component has any props that are interactable, they should be passed here
+// If the component has any props that are interactive, they should be passed here
 // We recommend reading Storybook docs for args: https://storybook.js.org/docs/react/writing-stories/args
 export const Default: Story = {};
 
@@ -332,13 +449,13 @@ This is to ensure that the Website is always available and that we do not depend
 #### What is `next.dynamic.mjs`?
 
 Our whole Website uses a custom renderer for rendering the pages.
-As you might have seen, within the `pages` directory we have [Next.js Dynamic Route](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes) named `[...path].tsx` that matches against all possible routes of the Website.
+As you might have seen, within the `apps/site/pages` directory we have [Next.js Dynamic Route](https://nextjs.org/docs/pages/building-your-application/routing/dynamic-routes) named `[...path].tsx` that matches against all possible routes of the Website.
 
-This means that each `.md(x)` file within `pages/` is not rendered by Next.js regular App Tree (`pages/_document.tsx` and `pages/_app.tsx`) but a custom render tree.
+This means that each `.md(x)` file within `apps/site/pages/` is not rendered by Next.js regular App Tree (`apps/site/pages/_document.tsx` and `apps/site/pages/_app.tsx`) but a custom render tree.
 
 This custom render uses `getStaticPaths` and [Incremental Static Generation](https://nextjs.org/docs/pages/building-your-application/data-fetching/incremental-static-regeneration) to generate the full list of supported pages of the Website.
 For example, this allows us to generate Localized Pages for every page that is not translated, by telling Next.js to create a localised path.
-`next.dynamic.mjs` is responsible for getting a full list of the source pages (`pages/en`) and identifying which pages have been translated.
+`next.dynamic.mjs` is responsible for getting a full list of the source pages (`apps/site/pages/en`) and identifying which pages have been translated.
 
 Non-translated pages will have their Localized contexts and translated React message-bags (`next-intl`) but the content will be the same as the source page (English).
 Whereas localized pages will have localized context and content.
